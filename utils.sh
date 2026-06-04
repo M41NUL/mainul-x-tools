@@ -35,21 +35,18 @@ COPYRIGHT="(c) ${YEAR} MAINUL-X. All Rights Reserved."
 
 # --- AUTO BOX FUNCTIONS ---
 
-# Get terminal width (fallback 60 for small screens)
 get_cols() {
     local cols
     cols=$(tput cols 2>/dev/null)
     if [ -z "$cols" ] || [ "$cols" -lt 30 ]; then
         cols=60
     fi
-    # Cap at 70 for readability
     if [ "$cols" -gt 70 ]; then
         cols=70
     fi
     echo "$cols"
 }
 
-# Draw top border:    ╔══════╗
 box_top() {
     local cols=$(get_cols)
     local inner=$((cols - 2))
@@ -58,7 +55,6 @@ box_top() {
     echo -e "${CYAN}${BOLD}╔${line}╗${RESET}"
 }
 
-# Draw bottom border: ╚══════╝
 box_bottom() {
     local cols=$(get_cols)
     local inner=$((cols - 2))
@@ -67,7 +63,6 @@ box_bottom() {
     echo -e "${CYAN}${BOLD}╚${line}╝${RESET}"
 }
 
-# Draw separator:     ╠══════╣
 box_sep() {
     local cols=$(get_cols)
     local inner=$((cols - 2))
@@ -76,7 +71,6 @@ box_sep() {
     echo -e "${CYAN}${BOLD}╠${line}╣${RESET}"
 }
 
-# Draw empty row:     ║      ║
 box_empty() {
     local cols=$(get_cols)
     local inner=$((cols - 2))
@@ -85,8 +79,6 @@ box_empty() {
     echo -e "${CYAN}${BOLD}║${RESET}${spaces}${CYAN}${BOLD}║${RESET}"
 }
 
-# Draw a row with text (auto pad):  ║  TEXT       ║
-# Usage: box_row "  LABEL" "VALUE" LABEL_COLOR VALUE_COLOR
 box_row() {
     local cols=$(get_cols)
     local inner=$((cols - 2))
@@ -94,20 +86,15 @@ box_row() {
     local value="$2"
     local lcolor="${3:-$WHITE}"
     local vcolor="${4:-$WHITE}"
-
-    # Visible length (strip color codes for padding calc)
     local visible="${label}  ${value}"
     local vis_len=${#visible}
     local pad=$((inner - vis_len - 1))
     if [ $pad -lt 0 ]; then pad=0; fi
-
     local spaces=""
     for ((i=0; i<pad; i++)); do spaces+=" "; done
-
     echo -e "${CYAN}${BOLD}║${RESET} ${lcolor}${BOLD}${label}${RESET}  ${vcolor}${value}${RESET}${spaces} ${CYAN}${BOLD}║${RESET}"
 }
 
-# Draw a full-width divider line (no box)
 print_line() {
     local cols=$(get_cols)
     local line=""
@@ -132,65 +119,57 @@ print_warn() {
     echo -e "${YELLOW}  [ WARN  ]${RESET} ${WHITE}$1${RESET}"
 }
 
-# --- LOADING ANIMATION ---
-loading_animation() {
-    local message="$1"
-    local frames=('|' '/' '-' '\')
-    local i=0
-    while true; do
-        echo -ne "\r${ORANGE}  ${frames[$((i % 4))]}${RESET} ${WHITE}${message}...${RESET}"
-        sleep 0.12
-        ((i++))
-    done
-}
-
-# --- RUN INSTALL ---
+# --- RUN INSTALL (Real output) ---
 run_install() {
     local label="$1"
     shift
     local commands=("$@")
 
-    local LOG_DIR="$HOME/.mainulx"
-    local LOG_FILE="$LOG_DIR/install.log"
-    mkdir -p "$LOG_DIR"
-
     local FINAL_STATUS=0
+    local PASS=0
+    local FAIL=0
 
     echo ""
     print_line
     echo -e "${ORANGE}${BOLD}  INSTALLING: ${WHITE}${label}${RESET}"
     print_line
+    echo ""
 
     for cmd in "${commands[@]}"; do
-        echo -e "\n${DIM}${CYAN}  >> ${cmd}${RESET}"
-        loading_animation "Processing" &
-        ANIM_PID=$!
-        eval "$cmd" > "$LOG_FILE" 2>&1
+        echo -e "${DIM}${CYAN}  ┌─ CMD ──────────────────────────────${RESET}"
+        echo -e "${DIM}${CYAN}  │${RESET} ${YELLOW}${cmd}${RESET}"
+        echo -e "${DIM}${CYAN}  └────────────────────────────────────${RESET}"
+        echo ""
+
+        # Run with real output visible
+        eval "$cmd"
         STATUS=$?
-        kill $ANIM_PID 2>/dev/null
-        wait $ANIM_PID 2>/dev/null
-        echo -ne "\r                                              \r"
+
+        echo ""
         if [ $STATUS -eq 0 ]; then
-            echo -e "${GREEN}  [  OK  ]${RESET} ${WHITE}${cmd}${RESET}"
+            echo -e "${GREEN}${BOLD}  [  OK  ]${RESET} ${WHITE}${cmd}${RESET}"
+            ((PASS++))
         else
+            echo -e "${RED}${BOLD}  [ FAIL ]${RESET} ${WHITE}${cmd}${RESET}"
+            ((FAIL++))
             FINAL_STATUS=1
-            echo -e "${RED}  [ FAIL ]${RESET} ${WHITE}${cmd}${RESET}"
-            local err_msg
-            err_msg=$(tail -1 "$LOG_FILE" 2>/dev/null)
-            if [ -n "$err_msg" ]; then
-                echo -e "${DIM}${RED}           ${err_msg}${RESET}"
-            fi
         fi
+        echo ""
+        print_line
+        echo ""
     done
 
-    echo ""
-    print_line
-    if [ $FINAL_STATUS -eq 0 ]; then
-        print_success "${label} installation completed."
-    else
-        print_warn "Some steps failed. Check output above."
-    fi
-    print_line
+    # Summary box
+    box_top
+    box_row "  INSTALL SUMMARY" ""                     "$ORANGE" "$WHITE"
+    box_sep
+    box_row "  LABEL   :" "${label}"                   "$WHITE"  "$WHITE"
+    box_row "  PASSED  :" "${PASS} commands"           "$GREEN"  "$GREEN"
+    box_row "  FAILED  :" "${FAIL} commands"           "$RED"    "$RED"
+    box_row "  STATUS  :" "$([ $FINAL_STATUS -eq 0 ] && echo 'COMPLETED' || echo 'PARTIAL')" \
+        "$WHITE" "$([ $FINAL_STATUS -eq 0 ] && echo $GREEN || echo $YELLOW)"
+    box_bottom
+
     echo ""
     read -p "$(echo -e "${DIM}  Press ENTER to return to menu...${RESET}")"
 }
