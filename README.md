@@ -65,4 +65,4 @@ mainul-x-tools/
 
 ---
 
-*© 2026 MAINUL-X. All Rights Reserved.*
+*© 2025 MAINUL-X. All Rights Reserved.*

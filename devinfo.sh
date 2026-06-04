@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 #  MAINUL-X TOOLS - devinfo.sh
-#  Developer Information Screen
+#  Developer Information Screen - Auto-Width Box
 # ============================================================
 
 source "$(dirname "$0")/utils.sh"
@@ -17,29 +17,23 @@ show_devinfo() {
     echo "   ██████╔╝███████╗ ╚████╔╝     ██║██║ ╚████║██║     ╚██████╔╝"
     echo "   ╚═════╝ ╚══════╝  ╚═══╝      ╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝ "
     echo -e "${RESET}"
-    print_line
+
+    box_top
+    box_row "  AUTHOR  :" "Md. Mainul Islam"          "$ORANGE" "$WHITE"
+    box_row "  BRAND   :" "MAINUL-X"                  "$ORANGE" "$ORANGE"
+    box_sep
+    box_row "  GITHUB  :" "github.com/M41NUL"         "$CYAN"   "$WHITE"
+    box_row "  TELEGRAM:" "t.me/mdmainulislaminfo"    "$CYAN"   "$WHITE"
+    box_row "  CHANNEL :" "t.me/mainul_x_official"   "$CYAN"   "$WHITE"
+    box_row "  GROUP   :" "t.me/mainul_x_official_gc" "$CYAN"  "$WHITE"
+    box_row "  YOUTUBE :" "youtube.com/@mdmainulislaminfo" "$CYAN" "$WHITE"
+    box_sep
+    box_row "  EMAIL   :" "devmainulislam@gmail.com"  "$GREEN"  "$WHITE"
+    box_row "  WHATSAPP:" "+8801308850528"             "$GREEN"  "$WHITE"
+    box_bottom
+
     echo ""
-    echo -e "${CYAN}${BOLD}   DEVELOPER INFORMATION${RESET}"
-    echo ""
-    echo -e "   ${DIM}${CYAN}┌──────────────────────────────────────────────────────────┐${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}                                                          ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${ORANGE}${BOLD}  AUTHOR   ${RESET}   ${WHITE}Md. Mainul Islam${RESET}                           ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${ORANGE}${BOLD}  BRAND    ${RESET}   ${ORANGE}MAINUL-X${RESET}                                   ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}                                                          ${DIM}${CYAN}│${RESET}"
-    print_line
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${CYAN}${BOLD}  GITHUB   ${RESET}   ${WHITE}github.com/M41NUL${RESET}                           ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${CYAN}${BOLD}  TELEGRAM ${RESET}   ${WHITE}t.me/mdmainulislaminfo${RESET}                      ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${CYAN}${BOLD}  CHANNEL  ${RESET}   ${WHITE}t.me/mainul_x_official${RESET}                     ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${CYAN}${BOLD}  GROUP    ${RESET}   ${WHITE}t.me/mainul_x_official_gc${RESET}                  ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${CYAN}${BOLD}  YOUTUBE  ${RESET}   ${WHITE}youtube.com/@mdmainulislaminfo${RESET}              ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}                                                          ${DIM}${CYAN}│${RESET}"
-    print_line
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${GREEN}${BOLD}  EMAIL    ${RESET}   ${WHITE}devmainulislam@gmail.com${RESET}                   ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}  ${GREEN}${BOLD}  WHATSAPP ${RESET}   ${WHITE}+8801308850528${RESET}                             ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}│${RESET}                                                          ${DIM}${CYAN}│${RESET}"
-    echo -e "   ${DIM}${CYAN}└──────────────────────────────────────────────────────────┘${RESET}"
-    echo ""
-    echo -e "   ${DIM}${WHITE}${COPYRIGHT}${RESET}"
+    echo -e "  ${DIM}${WHITE}${COPYRIGHT}${RESET}"
     echo ""
     print_line
     pause_menu

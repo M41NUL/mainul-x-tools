@@ -33,12 +33,89 @@ YOUTUBE="https://youtube.com/@mdmainulislaminfo"
 YEAR=$(date +%Y)
 COPYRIGHT="(c) ${YEAR} MAINUL-X. All Rights Reserved."
 
-# --- HELPER FUNCTIONS ---
+# --- AUTO BOX FUNCTIONS ---
 
-print_line() {
-    echo -e "${DIM}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+# Get terminal width (fallback 60 for small screens)
+get_cols() {
+    local cols
+    cols=$(tput cols 2>/dev/null)
+    if [ -z "$cols" ] || [ "$cols" -lt 30 ]; then
+        cols=60
+    fi
+    # Cap at 70 for readability
+    if [ "$cols" -gt 70 ]; then
+        cols=70
+    fi
+    echo "$cols"
 }
 
+# Draw top border:    ╔══════╗
+box_top() {
+    local cols=$(get_cols)
+    local inner=$((cols - 2))
+    local line=""
+    for ((i=0; i<inner; i++)); do line+="═"; done
+    echo -e "${CYAN}${BOLD}╔${line}╗${RESET}"
+}
+
+# Draw bottom border: ╚══════╝
+box_bottom() {
+    local cols=$(get_cols)
+    local inner=$((cols - 2))
+    local line=""
+    for ((i=0; i<inner; i++)); do line+="═"; done
+    echo -e "${CYAN}${BOLD}╚${line}╝${RESET}"
+}
+
+# Draw separator:     ╠══════╣
+box_sep() {
+    local cols=$(get_cols)
+    local inner=$((cols - 2))
+    local line=""
+    for ((i=0; i<inner; i++)); do line+="═"; done
+    echo -e "${CYAN}${BOLD}╠${line}╣${RESET}"
+}
+
+# Draw empty row:     ║      ║
+box_empty() {
+    local cols=$(get_cols)
+    local inner=$((cols - 2))
+    local spaces=""
+    for ((i=0; i<inner; i++)); do spaces+=" "; done
+    echo -e "${CYAN}${BOLD}║${RESET}${spaces}${CYAN}${BOLD}║${RESET}"
+}
+
+# Draw a row with text (auto pad):  ║  TEXT       ║
+# Usage: box_row "  LABEL" "VALUE" LABEL_COLOR VALUE_COLOR
+box_row() {
+    local cols=$(get_cols)
+    local inner=$((cols - 2))
+    local label="$1"
+    local value="$2"
+    local lcolor="${3:-$WHITE}"
+    local vcolor="${4:-$WHITE}"
+
+    # Visible length (strip color codes for padding calc)
+    local visible="${label}  ${value}"
+    local vis_len=${#visible}
+    local pad=$((inner - vis_len - 1))
+    if [ $pad -lt 0 ]; then pad=0; fi
+
+    local spaces=""
+    for ((i=0; i<pad; i++)); do spaces+=" "; done
+
+    echo -e "${CYAN}${BOLD}║${RESET} ${lcolor}${BOLD}${label}${RESET}  ${vcolor}${value}${RESET}${spaces} ${CYAN}${BOLD}║${RESET}"
+}
+
+# Draw a full-width divider line (no box)
+print_line() {
+    local cols=$(get_cols)
+    local line=""
+    for ((i=0; i<cols; i++)); do line+="━"; done
+    echo -e "${DIM}${CYAN}${line}${RESET}"
+}
+
+# --- STATUS PRINTS ---
 print_success() {
     echo -e "\n${GREEN}${BOLD}  [ SUCCESS ]${RESET} ${WHITE}$1${RESET}"
 }
@@ -55,6 +132,7 @@ print_warn() {
     echo -e "${YELLOW}  [ WARN  ]${RESET} ${WHITE}$1${RESET}"
 }
 
+# --- LOADING ANIMATION ---
 loading_animation() {
     local message="$1"
     local frames=('|' '/' '-' '\')
@@ -66,10 +144,17 @@ loading_animation() {
     done
 }
 
+# --- RUN INSTALL ---
 run_install() {
     local label="$1"
     shift
     local commands=("$@")
+
+    local LOG_DIR="$HOME/.mainulx"
+    local LOG_FILE="$LOG_DIR/install.log"
+    mkdir -p "$LOG_DIR"
+
+    local FINAL_STATUS=0
 
     echo ""
     print_line
@@ -80,25 +165,30 @@ run_install() {
         echo -e "\n${DIM}${CYAN}  >> ${cmd}${RESET}"
         loading_animation "Processing" &
         ANIM_PID=$!
-        eval "$cmd" > /tmp/mainulx_install.log 2>&1
+        eval "$cmd" > "$LOG_FILE" 2>&1
         STATUS=$?
         kill $ANIM_PID 2>/dev/null
         wait $ANIM_PID 2>/dev/null
-        echo -ne "\r"
+        echo -ne "\r                                              \r"
         if [ $STATUS -eq 0 ]; then
             echo -e "${GREEN}  [  OK  ]${RESET} ${WHITE}${cmd}${RESET}"
         else
+            FINAL_STATUS=1
             echo -e "${RED}  [ FAIL ]${RESET} ${WHITE}${cmd}${RESET}"
-            echo -e "${DIM}${RED}         $(tail -1 /tmp/mainulx_install.log)${RESET}"
+            local err_msg
+            err_msg=$(tail -1 "$LOG_FILE" 2>/dev/null)
+            if [ -n "$err_msg" ]; then
+                echo -e "${DIM}${RED}           ${err_msg}${RESET}"
+            fi
         fi
     done
 
     echo ""
     print_line
-    if [ $STATUS -eq 0 ]; then
+    if [ $FINAL_STATUS -eq 0 ]; then
         print_success "${label} installation completed."
     else
-        print_error "Some steps failed. Check logs above."
+        print_warn "Some steps failed. Check output above."
     fi
     print_line
     echo ""

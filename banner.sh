@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 #  MAINUL-X TOOLS - banner.sh
-#  ASCII Art Banner + Info Box
+#  ASCII Art Banner + Auto-Width Info Box
 # ============================================================
 
 source "$(dirname "$0")/utils.sh"
@@ -17,18 +17,20 @@ show_banner() {
     echo "  ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║╚██████╔╝███████╗ ██╔╝ ██╗"
     echo "  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝"
     echo -e "${RESET}"
-    echo -e "${CYAN}${BOLD}                   T  E  R  M  U  X     T  O  O  L  S${RESET}"
+    echo -e "${CYAN}${BOLD}               T E R M U X   T O O L S${RESET}"
     echo ""
 
-    # Info Box
-    echo -e "${DIM}${CYAN}  ┌─────────────────────────────────────────────────────────────┐${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   TOOLS  ${RESET}${DIM}${CYAN}:${RESET}  ${ORANGE}${BOLD}${TOOLS_NAME}                               ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   VERSION${RESET}${DIM}${CYAN}:${RESET}  ${GREEN}${TOOLS_VERSION}                                         ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   AUTHOR ${RESET}${DIM}${CYAN}:${RESET}  ${WHITE}${AUTHOR}                              ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   OWNER  ${RESET}${DIM}${CYAN}:${RESET}  ${ORANGE}${BOLD}${OWNER}                                       ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   GITHUB ${RESET}${DIM}${CYAN}:${RESET}  ${CYAN}${GITHUB_URL}                      ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  │${RESET}${BOLD}${WHITE}   TG     ${RESET}${DIM}${CYAN}:${RESET}  ${CYAN}${TELEGRAM_CHANNEL}               ${DIM}${CYAN}│${RESET}"
-    echo -e "${DIM}${CYAN}  └─────────────────────────────────────────────────────────────┘${RESET}"
+    # Auto-width double line info box
+    box_top
+    box_row "  VERSION :" "${TOOLS_VERSION}"        "$ORANGE" "$GREEN"
+    box_row "  AUTHOR  :" "${AUTHOR}"               "$ORANGE" "$WHITE"
+    box_row "  OWNER   :" "${OWNER}"                "$ORANGE" "$ORANGE"
+    box_sep
+    box_row "  GITHUB  :" "${GITHUB_URL}"           "$CYAN"   "$WHITE"
+    box_row "  TG      :" "${TELEGRAM_CHANNEL}"     "$CYAN"   "$WHITE"
+    box_bottom
+
+    echo ""
     echo -e "  ${DIM}${WHITE}${COPYRIGHT}${RESET}"
     echo ""
 }
