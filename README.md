@@ -15,6 +15,8 @@
 ## How to Run
 
 ```bash
+apt update && apt upgrade -y
+pkg install git -y
 git clone https://github.com/M41NUL/mainul-x-tools
 cd mainul-x-tools
 chmod +x main.sh
